@@ -1,65 +1,51 @@
 package com.myapp.util;
 
-import com.myapp.model.CarClass;
 import com.myapp.model.SportCar;
-
-import java.util.ArrayList;
+import com.myapp.model.CarClass;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class CarUtils {
-
+    private static final String[] MANUFACTURERS = {"Ferrari", "Porsche", "Lamborghini", "McLaren"};
+    private static final String[][] MODELS = {
+            {"488", "F8", "SF90"},
+            {"911", "Taycan", "Panamera"},
+            {"Aventador", "Huracan", "Urus"},
+            {"720S", "Artura", "P1"}
+    };
     private static final Random random = new Random();
 
-    private static final String[] BRANDS = {
-            "Porsche", "Ferrari", "BMW", "McLaren", "Toyota", "Lamborghini", "Audi"
-    };
-
-    private static final String[] MODELS = {
-            "911 GT3", "LaFerrari", "M2", "720S", "Supra", "Huracan", "R8"
-    };
-
-    /**
-     * Генерирует список случайных спорткаров.
-     * @param count количество авто для генерации
-     * @return список спорткаров
-     */
     public static List<SportCar> generateRandomCars(int count) {
-        List<SportCar> cars = new ArrayList<>();
-        CarClass[] classes = CarClass.values();
-
-        for (int i = 0; i < count; i++) {
-            String brand = BRANDS[random.nextInt(BRANDS.length)];
-            String model = MODELS[random.nextInt(MODELS.length)];
-            CarClass carClass = classes[random.nextInt(classes.length)];
-
-            double price = 30_000 + random.nextDouble() * 1_970_000;
-
-            int horsepower = 200 + random.nextInt(800);
-
-            cars.add(new SportCar(brand, model, carClass, price, horsepower));
-        }
-
-        return cars;
+        return IntStream.range(0, count)
+                .mapToObj(i -> {
+                    int brand = random.nextInt(MANUFACTURERS.length);
+                    return new SportCar(
+                            MANUFACTURERS[brand],
+                            MODELS[brand][random.nextInt(MODELS[brand].length)],
+                            CarClass.values()[random.nextInt(CarClass.values().length)],
+                            30000 + random.nextDouble() * 500000,
+                            300 + random.nextInt(700)
+                    );
+                })
+                .collect(Collectors.toList());
     }
 
     public static void sortByPrice(List<SportCar> cars) {
         cars.sort(Comparator.comparingDouble(SportCar::getPrice));
     }
 
-
     public static void sortByHorsepowerDesc(List<SportCar> cars) {
-        cars.sort(Comparator.comparingInt(SportCar::getHorsepower).reversed());
+        cars.sort((a, b) -> Integer.compare(b.getHorsepower(), a.getHorsepower()));
     }
 
-
-    public static int compareByPrice(SportCar car1, SportCar car2) {
-        return Double.compare(car1.getPrice(), car2.getPrice());
+    public static int compareByPrice(SportCar a, SportCar b) {
+        return Double.compare(a.getPrice(), b.getPrice());
     }
 
-
-    public static int compareByHorsepower(SportCar car1, SportCar car2) {
-        return Integer.compare(car1.getHorsepower(), car2.getHorsepower());
+    public static int compareByHorsepower(SportCar a, SportCar b) {
+        return Integer.compare(a.getHorsepower(), b.getHorsepower());
     }
 }
